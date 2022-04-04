@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h1>WLL's Message Manager</h1>
-    <div class="create-post">
+    <div class="create-post" v-if="!loading">
       <input
         type="text"
         id="create-post"
@@ -11,8 +11,10 @@
       <button @click="createPost">Post!</button>
     </div>
 
+    <div v-if="loading">Loading...</div>
+
     <p class="error" v-if="error">{{ error }}</p>
-    <div class="posts-container">
+    <div class="posts-container" v-if="!loading">
       <div
         class="post"
         v-for="(post, index) in posts"
@@ -41,26 +43,39 @@ export default {
   name: 'Post',
   data() {
     return {
+      allPosts: [],
       posts: [],
       error: '',
       text: '',
+      loading: false,
     };
   },
   async created() {
     try {
-      this.posts = await PostService.getPosts();
+      this.loading = true;
+      this.allPosts = await PostService.getPosts();
+      this.posts = await this.allPosts.reverse();
+      this.loading = false;
     } catch (err) {
       this.error = err.message;
     }
   },
   methods: {
     async createPost() {
+      this.loading = true;
       await PostService.insertPost(this.text);
-      this.posts = await PostService.getPosts();
+      this.allPosts = await PostService.getPosts();
+      this.posts = await this.allPosts.reverse();
+      this.text = '';
+      this.loading = false;
     },
     async deletePost(id) {
+      this.loading = true;
       await PostService.deletePost(id);
-      this.posts = await PostService.getPosts();
+      this.allPosts = await PostService.getPosts();
+      this.posts = await this.allPosts.reverse();
+
+      this.loading = false;
     },
   },
 };
@@ -82,6 +97,7 @@ p.error {
   margin-bottom: 0.5rem;
   border-radius: 1rem;
   color: #f4f4f4;
+  font-size: 1.5rem;
 }
 
 div.post {
@@ -138,6 +154,7 @@ button {
   font-size: 1.5rem;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
+  margin-bottom: 0.5rem;
 }
 button:hover {
   background-color: #a4b787;

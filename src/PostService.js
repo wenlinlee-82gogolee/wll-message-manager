@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const url = 'http://localhost:3000/api/posts/';
+const url = 'api/posts/';
 
 //static means we dont need to create a instance in order to use the class
 class PostService {
