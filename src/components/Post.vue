@@ -10,17 +10,18 @@
         <path
           d="M10 13h-4v-1h4v1zm2.318-4.288l3.301 3.299-4.369.989 1.068-4.288zm11.682-5.062l-7.268 7.353-3.401-3.402 7.267-7.352 3.402 3.401zm-6 8.916v.977c0 4.107-6 2.457-6 2.457s1.518 6-2.638 6h-7.362v-20h14.056l1.977-2h-18.033v24h10.189c3.163 0 9.811-7.223 9.811-9.614v-3.843l-2 2.023z"
         /></svg
-      >Quick Note
+      >Note
     </h1>
     <p class="error" v-if="error">Error: {{ error }}</p>
     <div class="create-post" v-if="!loading">
       <textarea
         id="create-post"
         v-model="text"
-        placeholder="add a note"
+        placeholder="write a note"
       ></textarea>
 
-      <div>
+      <div class="post-btn">
+        <span>Add Note</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="40"
@@ -36,9 +37,10 @@
       </div>
     </div>
 
-    <div v-if="loading" class="loading">Data Loading...</div>
+    <div v-if="loading" class="loading">Loading...</div>
 
     <div class="posts-container" v-if="!loading">
+      <p class="intro">**double click to delete a note</p>
       <div
         class="post"
         v-for="(post, index) in posts"
@@ -87,12 +89,14 @@ export default {
   },
   methods: {
     async createPost() {
-      this.loading = true;
-      await PostService.insertPost(this.text);
-      this.allPosts = await PostService.getPosts();
-      this.posts = await this.allPosts.reverse();
-      this.text = '';
-      this.loading = false;
+      if (this.text !== '') {
+        this.loading = true;
+        await PostService.insertPost(this.text);
+        this.allPosts = await PostService.getPosts();
+        this.posts = await this.allPosts.reverse();
+        this.text = '';
+        this.loading = false;
+      }
     },
     async deletePost(id) {
       this.loading = true;
@@ -159,6 +163,9 @@ p.text {
   padding-bottom: 5rem;
   max-width: 50rem;
 }
+.container h1 {
+  color: #a4b787;
+}
 .create-post {
   margin: 2rem auto;
   display: flex;
@@ -190,12 +197,24 @@ textarea::placeholder {
 }
 
 h1 svg {
-  fill: #d8e3e7;
+  fill: #a4b787;
 }
 .loading {
   font-size: 2rem;
   margin-top: 10rem;
   color: #ffd124;
   min-height: 100vh;
+}
+.post-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.intro {
+  color: #a4b787;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-top: 2rem;
 }
 </style>
